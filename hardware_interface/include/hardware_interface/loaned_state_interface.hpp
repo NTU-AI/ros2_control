@@ -58,7 +58,7 @@ public:
 
   double get_value() const { return state_interface_.get_value(); }
 
-  std::array<double,25> get_array_value() const { return state_interface_.get_array_value(); }
+  std::vector<double> get_array_value() const { return state_interface_.get_array_value(); }
 
 protected:
   StateInterface & state_interface_;

@@ -34,7 +34,7 @@ public:
   }
 
   ReadOnlyHandle(
-    const std::string & name, const std::string & interface_name, double * firstElem, std::array<double,25>* value_ptr)
+    const std::string & name, const std::string & interface_name, double * firstElem, std::vector<double>* value_ptr)
   : name_(name), interface_name_(interface_name), value_ptr_(firstElem), array_value_ptr_(value_ptr)
   {
   }
@@ -74,7 +74,7 @@ public:
     return *value_ptr_;
   }
 
-  std::array<double,25> get_array_value() const
+  std::vector<double> get_array_value() const
   {
     THROW_ON_NULLPTR(array_value_ptr_);
     return *array_value_ptr_;
@@ -84,7 +84,7 @@ protected:
   std::string name_;
   std::string interface_name_;
   double * value_ptr_;
-  std::array<double,25>* array_value_ptr_;
+  std::vector<double>* array_value_ptr_;
 };
 
 class ReadWriteHandle : public ReadOnlyHandle
@@ -116,7 +116,7 @@ public:
     *this->value_ptr_ = value;
   }
 
-  void set_value(std::array<double,25> value)
+  void set_value(std::vector<double> value)
   {
     THROW_ON_NULLPTR(this->array_value_ptr_);
     *this->array_value_ptr_ = value;

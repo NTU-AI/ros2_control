@@ -34,13 +34,13 @@ public:
   }
 
   ReadOnlyHandle(
-    const std::string & name, const std::string & interface_name, int * int_value_ptr)
-  : name_(name), interface_name_(interface_name), value_ptr_(int_value_ptr), int_value_ptr_(int_value_ptr)
+    const std::string & name, const std::string & interface_name, int type, int * int_value_ptr)
+  : name_(name), interface_name_(interface_name), value_ptr_(nullptr), int_value_ptr_(int_value_ptr)
   {
   }
 
   ReadOnlyHandle(
-    const std::string & name, const std::string & interface_name, std::string * str_value_ptr)
+    const std::string & name, const std::string & interface_name, std::string str_len,std::string * str_value_ptr)
   : name_(name), interface_name_(interface_name), value_ptr_(nullptr), str_value_ptr_(str_value_ptr)
   {
   }

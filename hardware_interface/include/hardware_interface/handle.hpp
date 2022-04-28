@@ -35,7 +35,7 @@ public:
 
   ReadOnlyHandle(
     const std::string & name, const std::string & interface_name, int * int_value_ptr)
-  : name_(name), interface_name_(interface_name), value_ptr_(nullptr), int_value_ptr_(int_value_ptr)
+  : name_(name), interface_name_(interface_name), value_ptr_(int_value_ptr), int_value_ptr_(int_value_ptr)
   {
   }
 

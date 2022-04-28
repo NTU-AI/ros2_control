@@ -57,6 +57,10 @@ public:
   const std::string get_full_name() const { return state_interface_.get_full_name(); }
 
   double get_value() const { return state_interface_.get_value(); }
+  
+  int get_int_value() const { return state_interface_.get_int_value(); }
+
+  std::string get_str_value() const { return state_interface_.get_str_value(); }
 
   std::vector<double> get_array_value() const { return state_interface_.get_array_value(); }
 

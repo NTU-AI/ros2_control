@@ -49,6 +49,24 @@ public:
     const std::string & name, const std::string & interface_name, double * firstElem, std::vector<double>* value_ptr)
   : name_(name), interface_name_(interface_name), value_ptr_(firstElem), array_value_ptr_(value_ptr)
   {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, std::vector<unsigned char>* value_ptr)
+  : name_(name), interface_name_(interface_name), str_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, std::vector<double>* value_ptr)
+  : name_(name), interface_name_(interface_name), array_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
   }
 
   explicit ReadOnlyHandle(const std::string & interface_name)

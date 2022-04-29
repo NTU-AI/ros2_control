@@ -62,6 +62,10 @@ public:
 
   std::string get_str_value() const { return state_interface_.get_str_value(); }
 
+  int get_int_value() const { return state_interface_.get_int_value(); }
+  
+  std::vector<unsigned char> get_str_value() const { return state_interface_.get_str_value(); }
+
   std::vector<double> get_array_value() const { return state_interface_.get_array_value(); }
 
 protected:

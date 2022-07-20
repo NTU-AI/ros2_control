@@ -29,6 +29,9 @@ struct ControllerInfo
   /// Controller name.
   std::string name;
 
+  /// Controller namespace.
+  std::string ns;
+
   /// Controller type.
   std::string type;
 

@@ -34,25 +34,8 @@ public:
   }
 
   ReadOnlyHandle(
-<<<<<<< HEAD
-    const std::string & name, const std::string & interface_name, int type, int * int_value_ptr)
-  : name_(name), interface_name_(interface_name), value_ptr_(nullptr), int_value_ptr_(int_value_ptr)
-  {
-  }
-
-  ReadOnlyHandle(
-    const std::string & name, const std::string & interface_name, std::string str_len,std::string * str_value_ptr)
-  : name_(name), interface_name_(interface_name), value_ptr_(nullptr), str_value_ptr_(str_value_ptr)
-  {
-  }
-
-  ReadOnlyHandle(
-    const std::string & name, const std::string & interface_name, double * firstElem, std::vector<double>* value_ptr)
-  : name_(name), interface_name_(interface_name), value_ptr_(firstElem), array_value_ptr_(value_ptr)
-=======
     const std::string & name, const std::string & interface_name, int* value_ptr)
   : name_(name), interface_name_(interface_name), int_value_ptr_(value_ptr)
->>>>>>> 226592de094c3268db2cf8cb6653fdd545c79c95
   {
     double nullPTR = 0.0;
     this->value_ptr_ = &nullPTR; 
@@ -115,11 +98,7 @@ public:
     return *int_value_ptr_;
   }
 
-<<<<<<< HEAD
-  std::string get_str_value() const
-=======
   std::vector<unsigned char> get_str_value() const
->>>>>>> 226592de094c3268db2cf8cb6653fdd545c79c95
   {
     THROW_ON_NULLPTR(str_value_ptr_);
     return *str_value_ptr_;
@@ -136,11 +115,7 @@ protected:
   std::string interface_name_;
   double * value_ptr_;
   int * int_value_ptr_;
-<<<<<<< HEAD
-  std::string * str_value_ptr_;
-=======
   std::vector<unsigned char>* str_value_ptr_;
->>>>>>> 226592de094c3268db2cf8cb6653fdd545c79c95
   std::vector<double>* array_value_ptr_;
 };
 

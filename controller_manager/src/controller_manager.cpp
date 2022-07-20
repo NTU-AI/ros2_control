@@ -150,6 +150,32 @@ void ControllerManager::init_services()
 }
 
 controller_interface::ControllerInterfaceSharedPtr ControllerManager::load_controller(
+  const std::string & controller_name, const std::string & controller_namespace,  const std::string & controller_type)
+{
+  RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
+
+  if (!loader_->isClassAvailable(controller_type))
+  {
+    RCLCPP_ERROR(get_logger(), "Loader for controller '%s' not found.", controller_name.c_str());
+    RCLCPP_INFO(get_logger(), "Available classes:");
+    for (const auto & available_class : loader_->getDeclaredClasses())
+    {
+      RCLCPP_INFO(get_logger(), "  %s", available_class.c_str());
+    }
+    return nullptr;
+  }
+
+  auto controller = loader_->createSharedInstance(controller_type);
+  ControllerSpec controller_spec;
+  controller_spec.c = controller;
+  controller_spec.info.name = controller_name;
+  controller_spec.info.ns = controller_namespace;
+  controller_spec.info.type = controller_type;
+
+  return add_controller_impl(controller_spec);
+}
+
+controller_interface::ControllerInterfaceSharedPtr ControllerManager::load_controller(
   const std::string & controller_name, const std::string & controller_type)
 {
   RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
@@ -627,12 +653,24 @@ controller_interface::ControllerInterfaceSharedPtr ControllerManager::add_contro
     return nullptr;
   }
 
-  if (controller.c->init(controller.info.name) == controller_interface::return_type::ERROR)
-  {
-    to.clear();
-    RCLCPP_ERROR(
-      get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
-    return nullptr;
+  if(!controller.info.ns.empty()){
+
+    if (controller.c->init(controller.info.name, controller.info.ns) == controller_interface::return_type::ERROR)
+    {
+      to.clear();
+      RCLCPP_ERROR(
+        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
+      return nullptr;
+    }
+  }
+  else{
+    if (controller.c->init(controller.info.name) == controller_interface::return_type::ERROR)
+    {
+      to.clear();
+      RCLCPP_ERROR(
+        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
+      return nullptr;
+    }
   }
 
   // ensure controller's `use_sim_time` parameter matches controller_manager's

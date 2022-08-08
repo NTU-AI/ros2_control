@@ -150,7 +150,7 @@ void ControllerManager::init_services()
 }
 
 controller_interface::ControllerInterfaceSharedPtr ControllerManager::load_controller(
-  const std::string & controller_name, const std::string & controller_namespace,  const std::string & controller_type)
+  const std::string & controller_name, const std::string & controller_namespace, const std::string & paramFile, const std::string & controller_type)
 {
   RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
 
@@ -165,11 +165,16 @@ controller_interface::ControllerInterfaceSharedPtr ControllerManager::load_contr
     return nullptr;
   }
 
+  rclcpp::NodeOptions controller_options = rclcpp::NodeOptions().allow_undeclared_parameters(true)
+                    .automatically_declare_parameters_from_overrides(true)
+                    .arguments({"--ros-args", "--params-file", paramFile});     
+
   auto controller = loader_->createSharedInstance(controller_type);
   ControllerSpec controller_spec;
   controller_spec.c = controller;
   controller_spec.info.name = controller_name;
   controller_spec.info.ns = controller_namespace;
+  controller_spec.info.options = &controller_options;
   controller_spec.info.type = controller_type;
 
   return add_controller_impl(controller_spec);
@@ -237,6 +242,7 @@ controller_interface::return_type ControllerManager::unload_controller(
   auto found_it = std::find_if(
     to.begin(), to.end(),
     std::bind(controller_name_compare, std::placeholders::_1, controller_name));
+
   if (found_it == to.end())
   {
     // Fails if we could not remove the controllers
@@ -273,6 +279,8 @@ controller_interface::return_type ControllerManager::unload_controller(
   RCLCPP_DEBUG(get_logger(), "Destruct controller finished");
 
   RCLCPP_DEBUG(get_logger(), "Successfully unloaded controller '%s'", controller_name.c_str());
+
+  RCLCPP_INFO(get_logger(), "Successfully unloaded controller '%s'", controller_name.c_str());
   return controller_interface::return_type::OK;
 }
 
@@ -579,6 +587,7 @@ controller_interface::return_type ControllerManager::switch_controller(
 
   // wait until switch is finished
   RCLCPP_DEBUG(get_logger(), "Request atomic controller switch from realtime loop");
+
   while (rclcpp::ok() && switch_params_.do_switch)
   {
     if (!rclcpp::ok())
@@ -625,6 +634,8 @@ controller_interface::return_type ControllerManager::switch_controller(
   start_command_interface_request_.clear();
   stop_command_interface_request_.clear();
   RCLCPP_DEBUG(get_logger(), "Successfully switched controllers");
+
+  RCLCPP_INFO(get_logger(), "Successfully switched controllers");
   return controller_interface::return_type::OK;
 }
 
@@ -655,7 +666,7 @@ controller_interface::ControllerInterfaceSharedPtr ControllerManager::add_contro
 
   if(!controller.info.ns.empty()){
 
-    if (controller.c->init(controller.info.name, controller.info.ns) == controller_interface::return_type::ERROR)
+    if (controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
     {
       to.clear();
       RCLCPP_ERROR(

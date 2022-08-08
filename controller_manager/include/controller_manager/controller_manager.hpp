@@ -69,7 +69,7 @@ public:
 
   CONTROLLER_MANAGER_PUBLIC
   controller_interface::ControllerInterfaceSharedPtr load_controller(
-    const std::string & controller_name, const std::string & controller_namespace, const std::string & controller_type);
+    const std::string & controller_name, const std::string & controller_namespace, const std::string & paramFile, const std::string & controller_type);
 
   CONTROLLER_MANAGER_PUBLIC
   controller_interface::ControllerInterfaceSharedPtr load_controller(

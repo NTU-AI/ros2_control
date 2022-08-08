@@ -92,7 +92,7 @@ public:
   virtual return_type init(const std::string & controller_name);
 
   CONTROLLER_INTERFACE_PUBLIC
-  virtual return_type init(const std::string & controller_name, const std::string & controller_namespace);
+  virtual return_type init(const std::string & controller_name, const std::string & controller_namespace, rclcpp::NodeOptions *node_options);
 
   CONTROLLER_INTERFACE_PUBLIC
   virtual return_type init(const std::string & controller_name, rclcpp::NodeOptions & node_options);

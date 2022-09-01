@@ -265,18 +265,18 @@ controller_interface::return_type ControllerManager::unload_controller(
     return controller_interface::return_type::ERROR;
   }
 
-  RCLCPP_DEBUG(get_logger(), "Cleanup controller");
+  RCLCPP_INFO(get_logger(), "Cleanup controller");
   controller.c->cleanup();
   executor_->remove_node(controller.c->get_node());
   to.erase(found_it);
 
   // Destroys the old controllers list when the realtime thread is finished with it.
-  RCLCPP_DEBUG(get_logger(), "Realtime switches over to new controller list");
-  rt_controllers_wrapper_.switch_updated_list(guard);
+  RCLCPP_INFO(get_logger(), "Realtime switches over to new controller list");
+  //rt_controllers_wrapper_.switch_updated_list(guard);
   std::vector<ControllerSpec> & new_unused_list = rt_controllers_wrapper_.get_unused_list(guard);
-  RCLCPP_DEBUG(get_logger(), "Destruct controller");
+  RCLCPP_INFO(get_logger(), "Destruct controller");
   new_unused_list.clear();
-  RCLCPP_DEBUG(get_logger(), "Destruct controller finished");
+  RCLCPP_INFO(get_logger(), "Destruct controller finished");
 
   RCLCPP_DEBUG(get_logger(), "Successfully unloaded controller '%s'", controller_name.c_str());
 

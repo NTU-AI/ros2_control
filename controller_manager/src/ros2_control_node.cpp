@@ -23,7 +23,7 @@
 
 using namespace std::chrono_literals;
 
-const int DEFAULT_UPDATE_RATE = 100;
+const int DEFAULT_UPDATE_RATE = 1000;
 
 int main(int argc, char ** argv)
 {
@@ -49,6 +49,8 @@ int main(int argc, char ** argv)
     RCLCPP_INFO(cm->get_logger(), "update rate is %d Hz", update_rate);
 
     rclcpp::Time end_period = cm->now();
+
+    //std::cout << "UPDATE RATE: " << update_rate << std::endl;
 
     // Use nanoseconds to avoid chrono's rounding
     rclcpp::Duration period(std::chrono::nanoseconds(1000000000 / update_rate));

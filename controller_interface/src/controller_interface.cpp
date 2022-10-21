@@ -37,8 +37,11 @@ return_type ControllerInterface::init(const std::string & controller_name)
 
 return_type ControllerInterface::init(const std::string & controller_name, const std::string & controller_namespace, rclcpp::NodeOptions * node_options)
 {
+  auto charIndex= controller_name.find_last_of('_');
+  std::string controller_name_without_id = controller_name.substr(0, charIndex);
+
   node_ = std::make_shared<rclcpp::Node>(
-    controller_name, controller_namespace, (*node_options));
+    controller_name_without_id, controller_namespace, (*node_options));
   lifecycle_state_ = rclcpp_lifecycle::State(
     lifecycle_msgs::msg::State::PRIMARY_STATE_UNCONFIGURED, state_names::UNCONFIGURED);
   return return_type::OK;

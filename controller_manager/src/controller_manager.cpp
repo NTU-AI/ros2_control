@@ -232,6 +232,7 @@ controller_interface::ControllerInterfaceSharedPtr ControllerManager::load_contr
 controller_interface::return_type ControllerManager::unload_controller(
   const std::string & controller_name)
 {
+
   std::lock_guard<std::recursive_mutex> guard(rt_controllers_wrapper_.controllers_lock_);
   std::vector<ControllerSpec> & to = rt_controllers_wrapper_.get_unused_list(guard);
   const std::vector<ControllerSpec> & from = rt_controllers_wrapper_.get_updated_list(guard);
@@ -268,6 +269,10 @@ controller_interface::return_type ControllerManager::unload_controller(
   RCLCPP_INFO(get_logger(), "Cleanup controller");
   controller.c->cleanup();
   executor_->remove_node(controller.c->get_node());
+  controller.c->release_interfaces();
+  controller.c->shutdown();
+  controller.c->deactivate();
+  loader_.reset();
   to.erase(found_it);
 
   // Destroys the old controllers list when the realtime thread is finished with it.
@@ -281,6 +286,7 @@ controller_interface::return_type ControllerManager::unload_controller(
   RCLCPP_DEBUG(get_logger(), "Successfully unloaded controller '%s'", controller_name.c_str());
 
   RCLCPP_INFO(get_logger(), "Successfully unloaded controller '%s'", controller_name.c_str());
+
   return controller_interface::return_type::OK;
 }
 

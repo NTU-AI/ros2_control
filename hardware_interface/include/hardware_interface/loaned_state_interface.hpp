@@ -60,6 +60,8 @@ public:
 
   int get_int_value() const { return state_interface_.get_int_value(); }
   
+  uint32_t get_uint32_value() const { return state_interface_.get_uint32_value(); }
+  
   std::vector<unsigned char> get_str_value() const { return state_interface_.get_str_value(); }
 
   std::vector<double> get_array_value() const { return state_interface_.get_array_value(); }

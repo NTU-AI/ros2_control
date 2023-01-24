@@ -42,6 +42,14 @@ public:
   }
 
   ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, uint32_t* value_ptr)
+  : name_(name), interface_name_(interface_name), uint32_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  ReadOnlyHandle(
     const std::string & name, const std::string & interface_name, std::vector<unsigned char>* value_ptr)
   : name_(name), interface_name_(interface_name), str_value_ptr_(value_ptr)
   {
@@ -98,6 +106,12 @@ public:
     return *int_value_ptr_;
   }
 
+  uint32_t get_uint32_value() const
+  {
+    THROW_ON_NULLPTR(uint32_value_ptr_);
+    return *uint32_value_ptr_;
+  }
+
   std::vector<unsigned char> get_str_value() const
   {
     THROW_ON_NULLPTR(str_value_ptr_);
@@ -115,6 +129,7 @@ protected:
   std::string interface_name_;
   double * value_ptr_;
   int * int_value_ptr_;
+  uint32_t * uint32_value_ptr_;
   std::vector<unsigned char>* str_value_ptr_;
   std::vector<double>* array_value_ptr_;
 };

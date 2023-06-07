@@ -2,6 +2,11 @@
 Changelog for package hardware_interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.11.0 (2022-08-03)
+-------------------
+* Error if a hardware name is duplicated (backport `#672 <https://github.com/ros-controls/ros2_control/issues/672>`_) (`#707 <https://github.com/ros-controls/ros2_control/issues/707>`_)
+* Contributors: Andy Zelenak, Bence Magyar
+
 0.10.1 (2022-05-31)
 -------------------
 

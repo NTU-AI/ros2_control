@@ -18,6 +18,8 @@
 #include <functional>
 #include <string>
 #include <utility>
+#include <vector>
+#include <array>
 
 #include "hardware_interface/handle.hpp"
 
@@ -66,6 +68,8 @@ public:
   void set_value(double val) { command_interface_.set_value(val); }
 
   double get_value() const { return command_interface_.get_value(); }
+
+  std::vector<double> get_array_value() const { return command_interface_.get_array_value(); }
 
 protected:
   CommandInterface & command_interface_;

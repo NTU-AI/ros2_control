@@ -34,6 +34,38 @@ public:
   {
   }
 
+  explicit ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, int* value_ptr)
+  : prefix_name_(name), interface_name_(interface_name), int_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  explicit ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, uint32_t* value_ptr)
+  : prefix_name_(name), interface_name_(interface_name), uint32_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  explicit  ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, std::vector<unsigned char>* value_ptr)
+  : prefix_name_(name), interface_name_(interface_name), str_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
+  explicit ReadOnlyHandle(
+    const std::string & name, const std::string & interface_name, std::vector<double>* value_ptr)
+  : prefix_name_(name), interface_name_(interface_name), array_value_ptr_(value_ptr)
+  {
+    double nullPTR = 0.0;
+    this->value_ptr_ = &nullPTR; 
+  }
+
   explicit ReadOnlyHandle(const std::string & interface_name)
   : interface_name_(interface_name), value_ptr_(nullptr)
   {
@@ -61,6 +93,8 @@ public:
 
   const std::string & get_interface_name() const { return interface_name_; }
 
+  //const std::string get_full_name() const { return prefix_name_ + "/" + interface_name_; }
+
   [[deprecated(
     "Replaced by get_name method, which is semantically more correct")]] const std::string
   get_full_name() const
@@ -76,10 +110,38 @@ public:
     return *value_ptr_;
   }
 
+  int get_int_value() const
+  {
+    THROW_ON_NULLPTR(int_value_ptr_);
+    return *int_value_ptr_;
+  }
+
+  uint32_t get_uint32_value() const
+  {
+    THROW_ON_NULLPTR(uint32_value_ptr_);
+    return *uint32_value_ptr_;
+  }
+
+  std::vector<unsigned char> get_str_value() const
+  {
+    THROW_ON_NULLPTR(str_value_ptr_);
+    return *str_value_ptr_;
+  }
+
+  std::vector<double> get_array_value() const
+  {
+    THROW_ON_NULLPTR(array_value_ptr_);
+    return *array_value_ptr_;
+  }
+
 protected:
   std::string prefix_name_;
   std::string interface_name_;
   double * value_ptr_;
+  int * int_value_ptr_;
+  uint32_t * uint32_value_ptr_;
+  std::vector<unsigned char>* str_value_ptr_;
+  std::vector<double>* array_value_ptr_;
 };
 
 class ReadWriteHandle : public ReadOnlyHandle
@@ -110,6 +172,12 @@ public:
   {
     THROW_ON_NULLPTR(this->value_ptr_);
     *this->value_ptr_ = value;
+  }
+
+  void set_value(std::vector<double> value)
+  {
+    THROW_ON_NULLPTR(this->array_value_ptr_);
+    *this->array_value_ptr_ = value;
   }
 };
 

@@ -86,6 +86,10 @@ public:
 
   CONTROLLER_MANAGER_PUBLIC
   controller_interface::ControllerInterfaceBaseSharedPtr load_controller(
+    const std::string & controller_name, const std::string & controller_namespace, const std::string & paramFile, const std::string & controller_type);
+
+  CONTROLLER_MANAGER_PUBLIC
+  controller_interface::ControllerInterfaceBaseSharedPtr load_controller(
     const std::string & controller_name, const std::string & controller_type);
 
   /// load_controller loads a controller by name, the type must be defined in the parameter server.

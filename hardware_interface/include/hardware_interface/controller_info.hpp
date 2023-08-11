@@ -29,6 +29,12 @@ struct ControllerInfo
   /// Controller name.
   std::string name;
 
+  /// Controller namespace.
+  std::string ns;
+
+  /// Controller options
+  rclcpp::NodeOptions options;
+  
   /// Controller type.
   std::string type;
 

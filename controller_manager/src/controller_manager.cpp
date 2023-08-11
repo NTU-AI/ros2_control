@@ -274,6 +274,66 @@ void ControllerManager::init_services()
 }
 
 controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::load_controller(
+  const std::string & controller_name,  const std::string & controller_namespace, const std::string & paramFile, const std::string & controller_type)
+{
+  RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
+
+  if (
+    !loader_->isClassAvailable(controller_type) &&
+    !chainable_loader_->isClassAvailable(controller_type))
+  {
+    RCLCPP_ERROR(
+      get_logger(), "Loader for controller '%s' (type '%s') not found.", controller_name.c_str(),
+      controller_type.c_str());
+    RCLCPP_INFO(get_logger(), "Available classes:");
+    for (const auto & available_class : loader_->getDeclaredClasses())
+    {
+      RCLCPP_INFO(get_logger(), "  %s", available_class.c_str());
+    }
+    for (const auto & available_class : chainable_loader_->getDeclaredClasses())
+    {
+      RCLCPP_INFO(get_logger(), "  %s", available_class.c_str());
+    }
+    return nullptr;
+  }
+  RCLCPP_DEBUG(get_logger(), "Loader for controller '%s' found.", controller_name.c_str());
+
+  controller_interface::ControllerInterfaceBaseSharedPtr controller;
+
+  try
+  {
+    if (loader_->isClassAvailable(controller_type))
+    {
+      controller = loader_->createSharedInstance(controller_type);
+    }
+    if (chainable_loader_->isClassAvailable(controller_type))
+    {
+      controller = chainable_loader_->createSharedInstance(controller_type);
+    }
+  }
+  catch (const pluginlib::CreateClassException & e)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "Error happened during creation of controller '%s' with type '%s':\n%s",
+      controller_name.c_str(), controller_type.c_str(), e.what());
+    return nullptr;
+  }
+
+  rclcpp::NodeOptions controller_options = rclcpp::NodeOptions().allow_undeclared_parameters(true)
+                    .automatically_declare_parameters_from_overrides(true)
+                    .arguments({"--ros-args", "--params-file", paramFile});
+                    
+  ControllerSpec controller_spec;
+  controller_spec.c = controller;
+  controller_spec.info.name = controller_name;
+  controller_spec.info.ns = controller_namespace;
+  controller_spec.info.options = controller_options;
+  controller_spec.info.type = controller_type;
+
+  return add_controller_impl(controller_spec);
+}
+
+controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::load_controller(
   const std::string & controller_name, const std::string & controller_type)
 {
   RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
@@ -392,6 +452,10 @@ controller_interface::return_type ControllerManager::unload_controller(
   // cleaning-up controllers?
   controller.c->get_node()->cleanup();
   executor_->remove_node(controller.c->get_node()->get_node_base_interface());
+  controller.c->release_interfaces();
+  // controller.c->shutdown();
+  // controller.c->deactivate();
+  // loader_.reset();
   to.erase(found_it);
 
   // Destroys the old controllers list when the realtime thread is finished with it.
@@ -959,14 +1023,23 @@ controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::add_co
     return nullptr;
   }
 
-  if (
-    controller.c->init(controller.info.name, get_namespace()) ==
-    controller_interface::return_type::ERROR)
-  {
-    to.clear();
-    RCLCPP_ERROR(
-      get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
-    return nullptr;
+  if(!controller.info.ns.empty()){
+    if (controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
+    {
+      to.clear();
+      RCLCPP_ERROR(
+        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
+      return nullptr;
+    }
+  }
+  else{
+    if (controller.c->init(controller.info.name) == controller_interface::return_type::ERROR)
+    {
+      to.clear();
+      RCLCPP_ERROR(
+        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
+      return nullptr;
+    }
   }
 
   // ensure controller's `use_sim_time` parameter matches controller_manager's

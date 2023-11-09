@@ -274,6 +274,66 @@ void ControllerManager::init_services()
 }
 
 controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::load_controller(
+  const std::string & controller_name,  const std::string & controller_namespace, rclcpp::NodeOptions *controller_options, const std::string & controller_type)
+{
+  RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());
+
+  if (
+    !loader_->isClassAvailable(controller_type) &&
+    !chainable_loader_->isClassAvailable(controller_type))
+  {
+    RCLCPP_ERROR(
+      get_logger(), "Loader for controller '%s' (type '%s') not found.", controller_name.c_str(),
+      controller_type.c_str());
+    RCLCPP_INFO(get_logger(), "Available classes:");
+    for (const auto & available_class : loader_->getDeclaredClasses())
+    {
+      RCLCPP_INFO(get_logger(), "  %s", available_class.c_str());
+    }
+    for (const auto & available_class : chainable_loader_->getDeclaredClasses())
+    {
+      RCLCPP_INFO(get_logger(), "  %s", available_class.c_str());
+    }
+    return nullptr;
+  }
+  RCLCPP_DEBUG(get_logger(), "Loader for controller '%s' found.", controller_name.c_str());
+
+  controller_interface::ControllerInterfaceBaseSharedPtr controller;
+
+  try
+  {
+    if (loader_->isClassAvailable(controller_type))
+    {
+      controller = loader_->createSharedInstance(controller_type);
+    }
+    if (chainable_loader_->isClassAvailable(controller_type))
+    {
+      controller = chainable_loader_->createSharedInstance(controller_type);
+    }
+  }
+  catch (const pluginlib::CreateClassException & e)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "Error happened during creation of controller '%s' with type '%s':\n%s",
+      controller_name.c_str(), controller_type.c_str(), e.what());
+    return nullptr;
+  }
+
+  //rclcpp::NodeOptions controller_options = rclcpp::NodeOptions().allow_undeclared_parameters(true)
+  //                  .automatically_declare_parameters_from_overrides(true)
+  //                  .arguments({"--ros-args", "--params-file", paramFile});
+                    
+  ControllerSpec controller_spec;
+  controller_spec.c = controller;
+  controller_spec.info.name = controller_name;
+  controller_spec.info.ns = controller_namespace;
+  controller_spec.info.options = (*controller_options);
+  controller_spec.info.type = controller_type;
+
+  return add_controller_impl(controller_spec);
+}
+
+controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::load_controller(
   const std::string & controller_name,  const std::string & controller_namespace, const std::string & paramFile, const std::string & controller_type)
 {
   RCLCPP_INFO(get_logger(), "Loading controller '%s'", controller_name.c_str());

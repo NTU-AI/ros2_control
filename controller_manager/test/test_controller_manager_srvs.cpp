@@ -284,12 +284,20 @@ TEST_F(TestControllerManagerSrvs, list_chained_controllers_srv)
   ASSERT_EQ("joint1/position", result->controller[1].reference_interfaces[0]);
   ASSERT_EQ("joint1/velocity", result->controller[1].reference_interfaces[1]);
   // activate controllers
-  cm_->switch_controller(
+  auto res = cm_->switch_controller(
     {test_chainable_controller::TEST_CONTROLLER_NAME}, {},
     controller_manager_msgs::srv::SwitchController::Request::STRICT, true, rclcpp::Duration(0, 0));
-  cm_->switch_controller(
+  ASSERT_EQ(res, controller_interface::return_type::OK);
+  // we should here wait for the first controller to be activated, i.e., for its reference
+  // interface to become available (mail loop runs on 100 Hz) - so we check the status at least once
+  while (result->controller[1].state != "active")
+  {
+    result = call_service_and_wait(*client, request, srv_executor);
+  }
+  res = cm_->switch_controller(
     {test_controller::TEST_CONTROLLER_NAME}, {},
     controller_manager_msgs::srv::SwitchController::Request::STRICT, true, rclcpp::Duration(0, 0));
+  ASSERT_EQ(res, controller_interface::return_type::OK);
   // get controller list after activate
   result = call_service_and_wait(*client, request, srv_executor);
   // check test controller
@@ -597,7 +605,9 @@ TEST_F(TestControllerManagerSrvs, list_sorted_chained_controllers)
        {TEST_CHAINED_CONTROLLER_4, TEST_CHAINED_CONTROLLER_3, TEST_CHAINED_CONTROLLER_5,
         TEST_CHAINED_CONTROLLER_2, TEST_CHAINED_CONTROLLER_1,
         test_controller::TEST_CONTROLLER_NAME})
+  {
     cm_->configure_controller(controller);
+  }
 
   // get controller list after configure
   result = call_service_and_wait(*client, request, srv_executor);
@@ -754,7 +764,9 @@ TEST_F(TestControllerManagerSrvs, list_sorted_complex_chained_controllers)
        {TEST_CHAINED_CONTROLLER_4, TEST_CHAINED_CONTROLLER_3, TEST_CHAINED_CONTROLLER_5,
         TEST_CHAINED_CONTROLLER_7, TEST_CHAINED_CONTROLLER_2, TEST_CHAINED_CONTROLLER_1,
         TEST_CHAINED_CONTROLLER_6, test_controller::TEST_CONTROLLER_NAME})
+  {
     cm_->configure_controller(controller);
+  }
 
   // get controller list after configure
   result = call_service_and_wait(*client, request, srv_executor);
@@ -765,7 +777,7 @@ TEST_F(TestControllerManagerSrvs, list_sorted_complex_chained_controllers)
   ASSERT_EQ(result->controller[1].name, TEST_CHAINED_CONTROLLER_7);
   ASSERT_EQ(result->controller[2].name, TEST_CHAINED_CONTROLLER_6);
 
-  auto get_ctrl_pos = [result](const std::string & controller_name) -> int
+  auto get_ctrl_pos = [result](const std::string & controller_name) -> int64_t
   {
     auto it = std::find_if(
       result->controller.begin(), result->controller.end(),
@@ -968,13 +980,16 @@ TEST_F(TestControllerManagerSrvs, list_sorted_independent_chained_controllers)
                       TEST_CHAINED_CONTROLLER_4, TEST_CONTROLLER_2,
                       TEST_CHAINED_CONTROLLER_2, TEST_CHAINED_CONTROLLER_6,
                       TEST_CHAINED_CONTROLLER_7, TEST_CHAINED_CONTROLLER_8};
-  for (const auto & controller : ctrls_order) cm_->configure_controller(controller);
+  for (const auto & controller : ctrls_order)
+  {
+    cm_->configure_controller(controller);
+  }
 
   // get controller list after configure
   result = call_service_and_wait(*client, request, srv_executor);
   ASSERT_EQ(10u, result->controller.size());
 
-  auto get_ctrl_pos = [result](const std::string & controller_name) -> int
+  auto get_ctrl_pos = [result](const std::string & controller_name) -> int64_t
   {
     auto it = std::find_if(
       result->controller.begin(), result->controller.end(),

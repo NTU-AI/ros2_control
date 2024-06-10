@@ -2,6 +2,30 @@
 Changelog for package rqt_controller_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* Add cm as dependency to rqt_cm (`#1447 <https://github.com/ros-controls/ros2_control/issues/1447>`_) (`#1459 <https://github.com/ros-controls/ros2_control/issues/1459>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+* [CI] Code coverage + pre-commit (backport `#1413 <https://github.com/ros-controls/ros2_control/issues/1413>`_) (`#1414 <https://github.com/ros-controls/ros2_control/issues/1414>`_)
+* Contributors: mergify[bot]
+
+2.39.1 (2024-02-14)
+-------------------
+
+2.39.0 (2024-02-12)
+-------------------
+
+2.38.0 (2024-01-25)
+-------------------
+
+2.37.0 (2024-01-20)
+-------------------
+* Fix rqt controller manager crash on ros2_control restart (`#1273 <https://github.com/ros-controls/ros2_control/issues/1273>`_) (`#1280 <https://github.com/ros-controls/ros2_control/issues/1280>`_)
+* Contributors: Sai Kishor Kothakota
+
 2.36.1 (2024-01-08)
 -------------------
 

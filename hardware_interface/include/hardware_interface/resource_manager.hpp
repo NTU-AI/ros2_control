@@ -61,8 +61,7 @@ public:
    * \param[in] validate_interfaces boolean argument indicating whether the exported
    * interfaces ought to be validated. Defaults to true.
    * \param[in] activate_all boolean argument indicating if all resources should be immediately
-   * activated. Currently used only in tests. In typical applications use parameters
-   * "autostart_components" and "autoconfigure_components" instead.
+   * activated. Currently used only in tests.
    */
   explicit ResourceManager(
     const std::string & urdf, bool validate_interfaces = true, bool activate_all = false);
@@ -80,8 +79,12 @@ public:
    * \param[in] urdf string containing the URDF.
    * \param[in] validate_interfaces boolean argument indicating whether the exported
    * interfaces ought to be validated. Defaults to true.
+   * \param[in] load_and_initialize_components boolean argument indicating whether to load and
+   * initialize the components present in the parsed URDF. Defaults to true.
    */
-  void load_urdf(const std::string & urdf, bool validate_interfaces = true);
+  void load_urdf(
+    const std::string & urdf, bool validate_interfaces = true,
+    bool load_and_initialize_components = true);
 
   /**
    * @brief if the resource manager load_urdf(...) function has been called this returns true.
@@ -343,7 +346,7 @@ public:
    * \note it is assumed that `prepare_command_mode_switch` is called just before this method
    * with the same input arguments.
    * \param[in] start_interfaces vector of string identifiers for the command interfaces starting.
-   * \param[in] stop_interfaces vector of string identifiers for the command interfacs stopping.
+   * \param[in] stop_interfaces vector of string identifiers for the command interfaces stopping.
    * \return true if switch is performed, false if a component rejects switching.
    */
   bool perform_command_mode_switch(
@@ -371,7 +374,7 @@ public:
    * Reads from all active hardware components.
    *
    * Part of the real-time critical update loop.
-   * It is realtime-safe if used hadware interfaces are implemented adequately.
+   * It is realtime-safe if used hardware interfaces are implemented adequately.
    */
   HardwareReadWriteStatus read(const rclcpp::Time & time, const rclcpp::Duration & period);
 
@@ -380,7 +383,7 @@ public:
    * Writes to all active hardware components.
    *
    * Part of the real-time critical update loop.
-   * It is realtime-safe if used hadware interfaces are implemented adequately.
+   * It is realtime-safe if used hardware interfaces are implemented adequately.
    */
   HardwareReadWriteStatus write(const rclcpp::Time & time, const rclcpp::Duration & period);
 
@@ -390,7 +393,11 @@ public:
    * This is used to preserve default behavior from previous versions where all hardware components
    * are activated per default.
    */
-  void activate_all_components();
+  [[deprecated(
+    "The method 'activate_all_components' is deprecated. "
+    "Use the new 'hardware_components_initial_state' parameter structure to setup the "
+    "components")]] void
+  activate_all_components();
 
   /// Checks whether a command interface is registered under the given key.
   /**

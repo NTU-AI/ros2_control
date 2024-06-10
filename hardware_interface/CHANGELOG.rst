@@ -2,6 +2,44 @@
 Changelog for package hardware_interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* Add missing calculate_dynamics (`#1498 <https://github.com/ros-controls/ros2_control/issues/1498>`_) (`#1511 <https://github.com/ros-controls/ros2_control/issues/1511>`_)
+* [Doc] Add documentation about initial_value regarding mock_hw (`#1352 <https://github.com/ros-controls/ros2_control/issues/1352>`_) (`#1513 <https://github.com/ros-controls/ros2_control/issues/1513>`_)
+* Move migration notes (`#1481 <https://github.com/ros-controls/ros2_control/issues/1481>`_) (`#1515 <https://github.com/ros-controls/ros2_control/issues/1515>`_)
+* Bump version of pre-commit hooks (backport `#1430 <https://github.com/ros-controls/ros2_control/issues/1430>`_) (`#1434 <https://github.com/ros-controls/ros2_control/issues/1434>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+* [CI] Code coverage + pre-commit (backport `#1413 <https://github.com/ros-controls/ros2_control/issues/1413>`_) (`#1414 <https://github.com/ros-controls/ros2_control/issues/1414>`_)
+* Move hardware interface README content to sphinx documentation (`#1342 <https://github.com/ros-controls/ros2_control/issues/1342>`_) (`#1380 <https://github.com/ros-controls/ros2_control/issues/1380>`_)
+* Contributors: mergify[bot]
+
+2.39.1 (2024-02-14)
+-------------------
+* readd activate_all_components method to not break API (`#1392 <https://github.com/ros-controls/ros2_control/issues/1392>`_)
+* Contributors: Sai Kishor Kothakota
+
+2.39.0 (2024-02-12)
+-------------------
+* Move `test_components` to own package (backport `#1325 <https://github.com/ros-controls/ros2_control/issues/1325>`_) (`#1340 <https://github.com/ros-controls/ros2_control/issues/1340>`_)
+* Contributors: mergify[bot]
+
+2.38.0 (2024-01-25)
+-------------------
+* [CM] Fix controller parameter loading issue in different cases (`#1293 <https://github.com/ros-controls/ros2_control/issues/1293>`_) (`#1332 <https://github.com/ros-controls/ros2_control/issues/1332>`_)
+* Enable setting of initial state in HW components (backport `#1046 <https://github.com/ros-controls/ros2_control/issues/1046>`_) (`#1064 <https://github.com/ros-controls/ros2_control/issues/1064>`_)
+* Contributors: Sai Kishor Kothakota, mergify[bot]
+
+2.37.0 (2024-01-20)
+-------------------
+* [RM] Fix crash for missing urdf in resource manager (`#1301 <https://github.com/ros-controls/ros2_control/issues/1301>`_) (`#1316 <https://github.com/ros-controls/ros2_control/issues/1316>`_)
+* Add additional checks for non existing and not available interfaces. (backport `#1218 <https://github.com/ros-controls/ros2_control/issues/1218>`_) (`#1291 <https://github.com/ros-controls/ros2_control/issues/1291>`_)
+* Fix return of ERROR and calls of cleanup when system is unconfigured of finalized (`#1279 <https://github.com/ros-controls/ros2_control/issues/1279>`_) (`#1286 <https://github.com/ros-controls/ros2_control/issues/1286>`_)
+* fix the multiple definitions of lexical casts methods (`#1281 <https://github.com/ros-controls/ros2_control/issues/1281>`_) (`#1282 <https://github.com/ros-controls/ros2_control/issues/1282>`_)
+* Contributors: Sai Kishor Kothakota, mergify[bot]
+
 2.36.1 (2024-01-08)
 -------------------
 * [ResourceManager] adds test for uninitialized hardware (`#1243 <https://github.com/ros-controls/ros2_control/issues/1243>`_) (`#1274 <https://github.com/ros-controls/ros2_control/issues/1274>`_)

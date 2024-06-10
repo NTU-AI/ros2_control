@@ -2,6 +2,26 @@
 Changelog for package transmission_interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* rosdoc2 for transmission_interface (`#1496 <https://github.com/ros-controls/ros2_control/issues/1496>`_) (`#1509 <https://github.com/ros-controls/ros2_control/issues/1509>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+
+2.39.1 (2024-02-14)
+-------------------
+
+2.39.0 (2024-02-12)
+-------------------
+
+2.38.0 (2024-01-25)
+-------------------
+
+2.37.0 (2024-01-20)
+-------------------
+
 2.36.1 (2024-01-08)
 -------------------
 * Improve transmission tests (`#1238 <https://github.com/ros-controls/ros2_control/issues/1238>`_) (`#1241 <https://github.com/ros-controls/ros2_control/issues/1241>`_)

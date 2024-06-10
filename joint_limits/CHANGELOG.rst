@@ -2,6 +2,28 @@
 Changelog for package joint_limits
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* Bump version of pre-commit hooks (backport `#1430 <https://github.com/ros-controls/ros2_control/issues/1430>`_) (`#1434 <https://github.com/ros-controls/ros2_control/issues/1434>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+* [CI] Code coverage + pre-commit (backport `#1413 <https://github.com/ros-controls/ros2_control/issues/1413>`_) (`#1414 <https://github.com/ros-controls/ros2_control/issues/1414>`_)
+* Contributors: mergify[bot]
+
+2.39.1 (2024-02-14)
+-------------------
+
+2.39.0 (2024-02-12)
+-------------------
+
+2.38.0 (2024-01-25)
+-------------------
+
+2.37.0 (2024-01-20)
+-------------------
+
 2.36.1 (2024-01-08)
 -------------------
 

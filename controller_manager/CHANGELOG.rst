@@ -2,6 +2,44 @@
 Changelog for package controller_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* check for state of the controller node before cleanup (backport `#1363 <https://github.com/ros-controls/ros2_control/issues/1363>`_) (`#1378 <https://github.com/ros-controls/ros2_control/issues/1378>`_)
+* Bump version of pre-commit hooks (backport `#1430 <https://github.com/ros-controls/ros2_control/issues/1430>`_) (`#1434 <https://github.com/ros-controls/ros2_control/issues/1434>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+* Fix multiple chainable controller activation bug (backport `#1401 <https://github.com/ros-controls/ros2_control/issues/1401>`_) (`#1411 <https://github.com/ros-controls/ros2_control/issues/1411>`_)
+* [CI] Code coverage + pre-commit (backport `#1413 <https://github.com/ros-controls/ros2_control/issues/1413>`_) (`#1414 <https://github.com/ros-controls/ros2_control/issues/1414>`_)
+* Contributors: mergify[bot]
+
+2.39.1 (2024-02-14)
+-------------------
+
+2.39.0 (2024-02-12)
+-------------------
+* [Spawners] Remove walrus operator (`#1366 <https://github.com/ros-controls/ros2_control/issues/1366>`_)
+* [CM] Use explicit constants in controller tests. (`#1356 <https://github.com/ros-controls/ros2_control/issues/1356>`_) (`#1359 <https://github.com/ros-controls/ros2_control/issues/1359>`_)
+* Move `test_components` to own package (backport `#1325 <https://github.com/ros-controls/ros2_control/issues/1325>`_) (`#1340 <https://github.com/ros-controls/ros2_control/issues/1340>`_)
+* Contributors: Christoph Fröhlich, Dr Denis
+
+2.38.0 (2024-01-25)
+-------------------
+* [CM] Fix controller parameter loading issue in different cases (`#1293 <https://github.com/ros-controls/ros2_control/issues/1293>`_) (`#1332 <https://github.com/ros-controls/ros2_control/issues/1332>`_)
+* Enable setting of initial state in HW components (backport `#1046 <https://github.com/ros-controls/ros2_control/issues/1046>`_) (`#1064 <https://github.com/ros-controls/ros2_control/issues/1064>`_)
+* Contributors: Sai Kishor Kothakota, mergify[bot]
+
+2.37.0 (2024-01-20)
+-------------------
+* Add additional checks for non existing and not available interfaces. (backport `#1218 <https://github.com/ros-controls/ros2_control/issues/1218>`_) (`#1291 <https://github.com/ros-controls/ros2_control/issues/1291>`_)
+* [ControllerManager] Fix all warnings from the latets features. (backport `#1174 <https://github.com/ros-controls/ros2_control/issues/1174>`_) (`#1309 <https://github.com/ros-controls/ros2_control/issues/1309>`_)
+* Reformat with braces added (backport `#1209 <https://github.com/ros-controls/ros2_control/issues/1209>`_) (`#1306 <https://github.com/ros-controls/ros2_control/issues/1306>`_)
+* Add spawner for hardware (backport `#941 <https://github.com/ros-controls/ros2_control/issues/941>`_) (`#1216 <https://github.com/ros-controls/ros2_control/issues/1216>`_)
+* Initialize the controller manager services after initializing resource manager (`#1272 <https://github.com/ros-controls/ros2_control/issues/1272>`_)
+* Fix rqt controller manager crash on ros2_control restart (`#1273 <https://github.com/ros-controls/ros2_control/issues/1273>`_) (`#1280 <https://github.com/ros-controls/ros2_control/issues/1280>`_)
+* Contributors: David Yackzan, Sai Kishor Kothakota, mergify[bot]
+
 2.36.1 (2024-01-08)
 -------------------
 * [docs] Remove joint_state_controller (`#1263 <https://github.com/ros-controls/ros2_control/issues/1263>`_) (`#1264 <https://github.com/ros-controls/ros2_control/issues/1264>`_)

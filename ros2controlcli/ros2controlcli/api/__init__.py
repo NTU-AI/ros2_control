@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from controller_manager import list_controllers
+from controller_manager import list_controllers, list_hardware_components
 
 import rclpy
 
@@ -28,24 +28,24 @@ def service_caller(service_name, service_type, request):
     try:
         rclpy.init()
 
-        node = rclpy.create_node(f"ros2controlcli_{ service_name.replace('/', '') }_requester")
+        node = rclpy.create_node(f"ros2controlcli_{service_name.replace('/', '')}_requester")
 
         cli = node.create_client(service_type, service_name)
 
         if not cli.service_is_ready():
-            node.get_logger().debug(f'waiting for service {service_name} to become available...')
+            node.get_logger().debug(f"waiting for service {service_name} to become available...")
 
             if not cli.wait_for_service(2.0):
-                raise RuntimeError(f'Could not contact service {service_name}')
+                raise RuntimeError(f"Could not contact service {service_name}")
 
-        node.get_logger().debug(f'requester: making request: { repr(request) }\n')
+        node.get_logger().debug(f"requester: making request: {repr(request)}\n")
         future = cli.call_async(request)
         rclpy.spin_until_future_complete(node, future)
         if future.result() is not None:
             return future.result()
         else:
             future_exception = future.exception()
-            raise RuntimeError(f'Exception while calling service: { repr(future_exception) }')
+            raise RuntimeError(f"Exception while calling service: {repr(future_exception)}")
     finally:
         node.destroy_node()
         rclpy.shutdown()
@@ -59,14 +59,14 @@ class ControllerNameCompleter:
             parameter_names = call_list_parameters(
                 node=node, node_name=parsed_args.controller_manager
             )
-            suffix = '.type'
+            suffix = ".type"
             return [n[: -len(suffix)] for n in parameter_names if n.endswith(suffix)]
 
 
 class LoadedControllerNameCompleter:
     """Callable returning a list of loaded controllers."""
 
-    def __init__(self, valid_states=['active', 'inactive', 'configured', 'unconfigured']):
+    def __init__(self, valid_states=["active", "inactive", "configured", "unconfigured"]):
         self.valid_states = valid_states
 
     def __call__(self, prefix, parsed_args, **kwargs):
@@ -75,16 +75,30 @@ class LoadedControllerNameCompleter:
             return [c.name for c in controllers if c.state in self.valid_states]
 
 
+class LoadedHardwareComponentNameCompleter:
+    """Callable returning a list of loaded hardware components."""
+
+    def __init__(self, valid_states=["active", "inactive", "configured", "unconfigured"]):
+        self.valid_states = valid_states
+
+    def __call__(self, prefix, parsed_args, **kwargs):
+        with DirectNode(parsed_args) as node:
+            hardware_components = list_hardware_components(
+                node, parsed_args.controller_manager
+            ).component
+            return [c.name for c in hardware_components if c.state.label in self.valid_states]
+
+
 def add_controller_mgr_parsers(parser):
     """Parser arguments to get controller manager node name, defaults to /controller_manager."""
     arg = parser.add_argument(
-        '-c',
-        '--controller-manager',
-        help='Name of the controller manager ROS node',
-        default='/controller_manager',
+        "-c",
+        "--controller-manager",
+        help="Name of the controller manager ROS node",
+        default="/controller_manager",
         required=False,
     )
-    arg.completer = NodeNameCompleter(include_hidden_nodes_key='include_hidden_nodes')
+    arg.completer = NodeNameCompleter(include_hidden_nodes_key="include_hidden_nodes")
     parser.add_argument(
-        '--include-hidden-nodes', action='store_true', help='Consider hidden nodes as well'
+        "--include-hidden-nodes", action="store_true", help="Consider hidden nodes as well"
     )

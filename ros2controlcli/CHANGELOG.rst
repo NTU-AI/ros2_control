@@ -2,6 +2,30 @@
 Changelog for package ros2controlcli
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.41.0 (2024-04-30)
+-------------------
+* [CI] Specify runner/container images and codecov for joint_limits  (`#1504 <https://github.com/ros-controls/ros2_control/issues/1504>`_) (`#1519 <https://github.com/ros-controls/ros2_control/issues/1519>`_)
+* [CLI] Add `set_hardware_component_state` verb (`#1248 <https://github.com/ros-controls/ros2_control/issues/1248>`_) (`#1470 <https://github.com/ros-controls/ros2_control/issues/1470>`_)
+* Contributors: mergify[bot]
+
+2.40.0 (2024-03-02)
+-------------------
+* [CI] Code coverage + pre-commit (backport `#1413 <https://github.com/ros-controls/ros2_control/issues/1413>`_) (`#1414 <https://github.com/ros-controls/ros2_control/issues/1414>`_)
+* Added spawner colours to `list_controllers` depending upon active or inactive (backport `#1409 <https://github.com/ros-controls/ros2_control/issues/1409>`_) (`#1424 <https://github.com/ros-controls/ros2_control/issues/1424>`_)
+* Contributors: mergify[bot]
+
+2.39.1 (2024-02-14)
+-------------------
+
+2.39.0 (2024-02-12)
+-------------------
+
+2.38.0 (2024-01-25)
+-------------------
+
+2.37.0 (2024-01-20)
+-------------------
+
 2.36.1 (2024-01-08)
 -------------------
 * [docs] Remove joint_state_controller (`#1263 <https://github.com/ros-controls/ros2_control/issues/1263>`_) (`#1264 <https://github.com/ros-controls/ros2_control/issues/1264>`_)

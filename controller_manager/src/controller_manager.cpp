@@ -337,7 +337,7 @@ void ControllerManager::robot_description_callback(const std_msgs::msg::String &
   RCLCPP_INFO(get_logger(), "Received robot description file.");
   RCLCPP_DEBUG(
     get_logger(), "'Content of robot description file: %s", robot_description.data.c_str());
-  // TODO(Manuel): errors should probably be caught since we don't want controller_manager node
+  // TODO(mamueluth): errors should probably be caught since we don't want controller_manager node
   // to die if a non valid urdf is passed. However, should maybe be fine tuned.
   try
   {
@@ -367,30 +367,83 @@ void ControllerManager::init_resource_manager(const std::string & robot_descript
   // TODO(destogl): manage this when there is an error - CM should not die because URDF is wrong...
   resource_manager_->load_urdf(robot_description);
 
+  // Get all components and if they are not defined in parameters activate them automatically
+  auto components_to_activate = resource_manager_->get_components_status();
+
   using lifecycle_msgs::msg::State;
 
-  std::vector<std::string> configure_components_on_start = std::vector<std::string>({});
-  if (get_parameter("configure_components_on_start", configure_components_on_start))
+  auto set_components_to_state =
+    [&](const std::string & parameter_name, rclcpp_lifecycle::State state)
   {
-    RCLCPP_WARN_STREAM(
-      get_logger(),
-      "[Deprecated]: Usage of parameter \"activate_components_on_start\" is deprecated. Use "
-      "hardware_spawner instead.");
-    rclcpp_lifecycle::State inactive_state(
-      State::PRIMARY_STATE_INACTIVE, hardware_interface::lifecycle_state_names::INACTIVE);
-    for (const auto & component : configure_components_on_start)
+    std::vector<std::string> components_to_set = std::vector<std::string>({});
+    if (get_parameter(parameter_name, components_to_set))
     {
-      resource_manager_->set_component_state(component, inactive_state);
+      for (const auto & component : components_to_set)
+      {
+        if (component.empty())
+        {
+          continue;
+        }
+        if (components_to_activate.find(component) == components_to_activate.end())
+        {
+          RCLCPP_WARN(
+            get_logger(), "Hardware component '%s' is unknown, therefore not set in '%s' state.",
+            component.c_str(), state.label().c_str());
+        }
+        else
+        {
+          RCLCPP_INFO(
+            get_logger(), "Setting component '%s' to '%s' state.", component.c_str(),
+            state.label().c_str());
+          resource_manager_->set_component_state(component, state);
+          components_to_activate.erase(component);
+        }
+      }
     }
+  };
+
+  // unconfigured (loaded only)
+  set_components_to_state(
+    "hardware_components_initial_state.unconfigured",
+    rclcpp_lifecycle::State(
+      State::PRIMARY_STATE_UNCONFIGURED, hardware_interface::lifecycle_state_names::UNCONFIGURED));
+
+  // inactive (configured)
+  // BEGIN: Keep old functionality on for backwards compatibility
+  std::vector<std::string> configure_components_on_start = std::vector<std::string>({});
+  get_parameter("configure_components_on_start", configure_components_on_start);
+  if (!configure_components_on_start.empty())
+  {
+    RCLCPP_WARN(
+      get_logger(),
+      "[Deprecated]: Parameter 'configure_components_on_start' is deprecated. "
+      "Use 'hardware_interface_state_after_start.inactive' instead, to set component's initial "
+      "state to 'inactive'. Don't use this parameters in combination with the new "
+      "'hardware_interface_state_after_start' parameter structure.");
+    set_components_to_state(
+      "configure_components_on_start",
+      rclcpp_lifecycle::State(
+        State::PRIMARY_STATE_INACTIVE, hardware_interface::lifecycle_state_names::INACTIVE));
+  }
+  // END: Keep old functionality on humble backwards compatibility (Remove at the end of 2023)
+  else
+  {
+    set_components_to_state(
+      "hardware_components_initial_state.inactive",
+      rclcpp_lifecycle::State(
+        State::PRIMARY_STATE_INACTIVE, hardware_interface::lifecycle_state_names::INACTIVE));
   }
 
+  // BEGIN: Keep old functionality on for backwards compatibility
   std::vector<std::string> activate_components_on_start = std::vector<std::string>({});
-  if (get_parameter("activate_components_on_start", activate_components_on_start))
+  get_parameter("activate_components_on_start", activate_components_on_start);
+  if (!activate_components_on_start.empty())
   {
-    RCLCPP_WARN_STREAM(
+    RCLCPP_WARN(
       get_logger(),
-      "[Deprecated]: Usage of parameter \"activate_components_on_start\" is deprecated. Use "
-      "hardware_spawner instead.");
+      "[Deprecated]: Parameter 'activate_components_on_start' is deprecated. "
+      "Components are activated per default. Don't use this parameters in combination with the new "
+      "'hardware_components_initial_state' parameter structure.");
     rclcpp_lifecycle::State active_state(
       State::PRIMARY_STATE_ACTIVE, hardware_interface::lifecycle_state_names::ACTIVE);
     for (const auto & component : activate_components_on_start)
@@ -398,15 +451,16 @@ void ControllerManager::init_resource_manager(const std::string & robot_descript
       resource_manager_->set_component_state(component, active_state);
     }
   }
-  // if both parameter are empty or non-existing preserve behavior where all components are
-  // activated per default
-  if (configure_components_on_start.empty() && activate_components_on_start.empty())
+  // END: Keep old functionality on humble for backwards compatibility (Remove at the end of 2023)
+  else
   {
-    RCLCPP_WARN_STREAM(
-      get_logger(),
-      "[Deprecated]: Automatic activation of all hardware components will not be supported in the "
-      "future anymore. Use hardware_spawner instead.");
-    resource_manager_->activate_all_components();
+    // activate all other components
+    for (const auto & [component, state] : components_to_activate)
+    {
+      rclcpp_lifecycle::State active_state(
+        State::PRIMARY_STATE_ACTIVE, hardware_interface::lifecycle_state_names::ACTIVE);
+      resource_manager_->set_component_state(component, active_state);
+    }
   }
 }
 
@@ -635,6 +689,23 @@ controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::load_c
   controller_spec.info.name = controller_name;
   controller_spec.info.type = controller_type;
 
+  // We have to fetch the parameters_file at the time of loading the controller, because this way we
+  // can load them at the creation of the LifeCycleNode and this helps in using the features such as
+  // read_only params, dynamic maps lists etc
+  // Now check if the parameters_file parameter exist
+  const std::string param_name = controller_name + ".params_file";
+  std::string parameters_file;
+
+  // Check if parameter has been declared
+  if (!has_parameter(param_name))
+  {
+    declare_parameter(param_name, rclcpp::ParameterType::PARAMETER_STRING);
+  }
+  if (get_parameter(param_name, parameters_file) && !parameters_file.empty())
+  {
+    controller_spec.info.parameters_file = parameters_file;
+  }
+
   return add_controller_impl(controller_spec);
 }
 
@@ -701,7 +772,20 @@ controller_interface::return_type ControllerManager::unload_controller(
   RCLCPP_DEBUG(get_logger(), "Cleanup controller");
   // TODO(destogl): remove reference interface if chainable; i.e., add a separate method for
   // cleaning-up controllers?
-  controller.c->get_node()->cleanup();
+  if (is_controller_inactive(*controller.c))
+  {
+    RCLCPP_DEBUG(
+      get_logger(), "Controller '%s' is cleaned-up before unloading!", controller_name.c_str());
+    // TODO(destogl): remove reference interface if chainable; i.e., add a separate method for
+    // cleaning-up controllers?
+    const auto new_state = controller.c->get_node()->cleanup();
+    if (new_state.id() != lifecycle_msgs::msg::State::PRIMARY_STATE_UNCONFIGURED)
+    {
+      RCLCPP_WARN(
+        get_logger(), "Failed to clean-up the controller '%s' before unloading!",
+        controller_name.c_str());
+    }
+  }
   executor_->remove_node(controller.c->get_node()->get_node_base_interface());
   controller.c->release_interfaces();
   // controller.c->shutdown();
@@ -863,6 +947,12 @@ void ControllerManager::clear_requests()
 {
   deactivate_request_.clear();
   activate_request_.clear();
+  // Set these interfaces as unavailable when clearing requests to avoid leaving them in available
+  // state without the controller being in active state
+  for (const auto & controller_name : to_chained_mode_request_)
+  {
+    resource_manager_->make_controller_reference_interfaces_unavailable(controller_name);
+  }
   to_chained_mode_request_.clear();
   from_chained_mode_request_.clear();
   activate_command_interface_request_.clear();
@@ -1313,36 +1403,17 @@ controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::add_co
     return nullptr;
   }
 
-  if(!controller.info.ns.empty()){
-    if (controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
-    {
-      to.clear();
-      RCLCPP_ERROR(
-        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
-      return nullptr;
-    }
-  }
-  else{
-    if (controller.c->init(controller.info.name) == controller_interface::return_type::ERROR)
-    {
-      to.clear();
-      RCLCPP_ERROR(
-        get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
-      return nullptr;
-    }
+  const rclcpp::NodeOptions controller_node_options = determine_controller_node_options(controller);
+  if (
+    controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
+    //controller.c->init(controller.info.name, get_namespace(), controller_node_options) == controller_interface::return_type::ERROR)
+  {
+    to.clear();
+    RCLCPP_ERROR(
+      get_logger(), "Could not initialize the controller named '%s'", controller.info.name.c_str());
+    return nullptr;
   }
 
-  // ensure controller's `use_sim_time` parameter matches controller_manager's
-  const rclcpp::Parameter use_sim_time = this->get_parameter("use_sim_time");
-  if (use_sim_time.as_bool())
-  {
-    RCLCPP_INFO(
-      get_logger(),
-      "Setting use_sim_time=True for %s to match controller manager "
-      "(see ros2_control#325 for details)",
-      controller.info.name.c_str());
-    controller.c->get_node()->set_parameter(use_sim_time);
-  }
   executor_->add_node(controller.c->get_node()->get_node_base_interface());
   to.emplace_back(controller);
 
@@ -1452,7 +1523,7 @@ void ControllerManager::switch_chained_mode(
           resource_manager_->make_controller_reference_interfaces_unavailable(controller_name);
         }
       }
-      else
+      else if (!controller->set_chained_mode(to_chained_mode))
       {
         RCLCPP_ERROR(
           get_logger(),
@@ -2327,6 +2398,10 @@ controller_interface::return_type ControllerManager::check_following_controllers
       if (found_it == to_chained_mode_request_.end())
       {
         to_chained_mode_request_.push_back(following_ctrl_it->info.name);
+        // if it is a chainable controller, make the reference interfaces available on preactivation
+        // (This is needed when you activate a couple of chainable controller altogether)
+        resource_manager_->make_controller_reference_interfaces_available(
+          following_ctrl_it->info.name);
         RCLCPP_DEBUG(
           get_logger(), "Adding controller '%s' in 'to chained mode' request.",
           following_ctrl_it->info.name.c_str());
@@ -2544,7 +2619,7 @@ bool ControllerManager::controller_sorting(
     }
 
     // If the ctrl_a's state interface is the one exported by the ctrl_b then ctrl_b should be
-    // infront of ctrl_a
+    // in front of ctrl_a
     // TODO(saikishor): deal with the state interface chaining in the sorting algorithm
     auto state_it = std::find_if(
       state_itfs.begin(), state_itfs.end(),
@@ -2562,5 +2637,43 @@ bool ControllerManager::controller_sorting(
     return false;
   }
 };
+
+rclcpp::NodeOptions ControllerManager::determine_controller_node_options(
+  const ControllerSpec & controller) const
+{
+  auto check_for_element = [](const auto & list, const auto & element)
+  { return std::find(list.begin(), list.end(), element) != list.end(); };
+
+  rclcpp::NodeOptions controller_node_options =
+    rclcpp::NodeOptions()
+      .allow_undeclared_parameters(true)
+      .automatically_declare_parameters_from_overrides(true);
+  std::vector<std::string> node_options_arguments = controller_node_options.arguments();
+  const std::string ros_args_arg = "--ros-args";
+  if (controller.info.parameters_file.has_value())
+  {
+    if (!check_for_element(node_options_arguments, ros_args_arg))
+    {
+      node_options_arguments.push_back(ros_args_arg);
+    }
+    node_options_arguments.push_back("--params-file");
+    node_options_arguments.push_back(controller.info.parameters_file.value());
+  }
+
+  // ensure controller's `use_sim_time` parameter matches controller_manager's
+  const rclcpp::Parameter use_sim_time = this->get_parameter("use_sim_time");
+  if (use_sim_time.as_bool())
+  {
+    if (!check_for_element(node_options_arguments, ros_args_arg))
+    {
+      node_options_arguments.push_back(ros_args_arg);
+    }
+    node_options_arguments.push_back("-p");
+    node_options_arguments.push_back("use_sim_time:=true");
+  }
+
+  controller_node_options = controller_node_options.arguments(node_options_arguments);
+  return controller_node_options;
+}
 
 }  // namespace controller_manager

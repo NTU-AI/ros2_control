@@ -1405,8 +1405,8 @@ controller_interface::ControllerInterfaceBaseSharedPtr ControllerManager::add_co
 
   const rclcpp::NodeOptions controller_node_options = determine_controller_node_options(controller);
   if (
-    //controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
-    controller.c->init(controller.info.name, get_namespace(), controller_node_options) == controller_interface::return_type::ERROR)
+    controller.c->init(controller.info.name, controller.info.ns, controller.info.options) == controller_interface::return_type::ERROR)
+    //controller.c->init(controller.info.name, get_namespace(), controller_node_options) == controller_interface::return_type::ERROR)
   {
     to.clear();
     RCLCPP_ERROR(

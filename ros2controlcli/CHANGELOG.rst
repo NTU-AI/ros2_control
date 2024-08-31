@@ -2,6 +2,14 @@
 Changelog for package ros2controlcli
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.43.0 (2024-08-22)
+-------------------
+* Make list controller and list hardware components immediately visualize the state. (backport `#1606 <https://github.com/ros-controls/ros2_control/issues/1606>`_) (`#1690 <https://github.com/ros-controls/ros2_control/issues/1690>`_)
+* Contributors: mergify[bot]
+
+2.42.0 (2024-07-23)
+-------------------
+
 2.41.0 (2024-04-30)
 -------------------
 * [CI] Specify runner/container images and codecov for joint_limits  (`#1504 <https://github.com/ros-controls/ros2_control/issues/1504>`_) (`#1519 <https://github.com/ros-controls/ros2_control/issues/1519>`_)
